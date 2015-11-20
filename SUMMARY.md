@@ -1,4 +1,3 @@
-+ [前言](README)
 + [ECMAScript 6简介](docs/intro)
 + [let和const命令](docs/let)
 + [变量的解构赋值](docs/destructuring)
