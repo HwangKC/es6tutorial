@@ -12,7 +12,7 @@ ECMAScript 6（以下简称ES6）是JavaScript语言的下一代标准，已经�
 
 该标准从一开始就是针对JavaScript语言制定的，但是之所以不叫JavaScript，有两个原因。一是商标，Java是Sun公司的商标，根据授权协议，只有Netscape公司可以合法地使用JavaScript这个名字，且JavaScript本身也已经被Netscape公司注册为商标。二是想体现这门语言的制定者是ECMA，不是Netscape，这样有利于保证这门语言的开放性和中立性。
 
-因此，ECMAScript和JavaScript的关系是，前者是后者的规格，后者是前者的一种实现。在日常场合，这两个词是可以互换的。
+因此，ECMAScript和JavaScript的关系是，前者是后者的规格，后者是前者的一种实现（另外的ECMAScript方言还有Jscript和ActionScript）。在日常场合，这两个词是可以互换的。
 
 ## ECMAScript的历史
 
@@ -22,11 +22,13 @@ ES6从开始制定到最后发布，整整用了15年。
 
 2000年，ECMAScript 4.0开始酝酿。这个版本最后没有通过，但是它的大部分内容被ES6继承了。因此，ES6制定的起点其实是2000年。
 
-为什么ES4没有通过呢？因为这个版本太激进了，对ES3做了彻底升级，导致标准委员会的一些成员不愿意接受。2007年10月，ECMAScript 4.0版草案发布，本来预计次年8月发布正式版本。但是，各方对于是否通过这个标准，发生了严重分歧。以Yahoo、Microsoft、Google为首的大公司，反对JavaScript的大幅升级，主张小幅改动；以JavaScript创造者Brendan Eich为首的Mozilla公司，则坚持当前的草案。
+为什么ES4没有通过呢？因为这个版本太激进了，对ES3做了彻底升级，导致标准委员会的一些成员不愿意接受。ECMA的第39号技术专家委员会（Technical Committee 39，简称TC39）负责制订ECMAScript标准，成员包括Microsoft、Mozilla、Google等大公司。
 
-2008年7月，由于对于下一个版本应该包括哪些功能，各方分歧太大，争论过于激进，ECMA开会决定，中止ECMAScript 4.0的开发，将其中涉及现有功能改善的一小部分，发布为ECMAScript 3.1，而将其他激进的设想扩大范围，放入以后的版本，由于会议的气氛，该版本的项目代号起名为Harmony（和谐）。会后不久，ECMAScript 3.1就改名为ECMAScript 5。
+2007年10月，ECMAScript 4.0版草案发布，本来预计次年8月发布正式版本。但是，各方对于是否通过这个标准，发生了严重分歧。以Yahoo、Microsoft、Google为首的大公司，反对JavaScript的大幅升级，主张小幅改动；以JavaScript创造者Brendan Eich为首的Mozilla公司，则坚持当前的草案。
 
-2009年12月，ECMAScript 5.0版正式发布。Harmony项目则一分为二，一些较为可行的设想定名为JavaScript.next继续开发，后来演变成ECMAScript 6；一些不是很成熟的设想，则被视为JavaScript.next.next，在更远的将来再考虑推出。
+2008年7月，由于对于下一个版本应该包括哪些功能，各方分歧太大，争论过于激烈，ECMA开会决定，中止ECMAScript 4.0的开发，将其中涉及现有功能改善的一小部分，发布为ECMAScript 3.1，而将其他激进的设想扩大范围，放入以后的版本，由于会议的气氛，该版本的项目代号起名为Harmony（和谐）。会后不久，ECMAScript 3.1就改名为ECMAScript 5。
+
+2009年12月，ECMAScript 5.0版正式发布。Harmony项目则一分为二，一些较为可行的设想定名为JavaScript.next继续开发，后来演变成ECMAScript 6；一些不是很成熟的设想，则被视为JavaScript.next.next，在更远的将来再考虑推出。TC39委员会的总体考虑是，ES5与ES3基本保持兼容，较大的语法修正和新功能加入，将由JavaScript.next完成。当时，JavaScript.next指的是ES6，第六版发布以后，就指ES7。TC39的判断是，ES5会在2013年的年中成为JavaScript开发的主流标准，并在此后五年中一直保持这个位置。
 
 2011年6月，ECMAscript 5.1版发布，并且成为ISO国际标准（ISO/IEC 16262:2011）。
 
@@ -35,8 +37,6 @@ ES6从开始制定到最后发布，整整用了15年。
 2013年12月，ECMAScript 6草案发布。然后是12个月的讨论期，听取各方反馈。
 
 2015年6月，ECMAScript 6正式通过，成为国际标准。从2000年算起，这时已经过去了15年。
-
-ECMA的第39号技术专家委员会（Technical Committee 39，简称TC39）负责制订ECMAScript标准，成员包括Microsoft、Mozilla、Google等大公司。TC39的总体考虑是，ES5与ES3基本保持兼容，较大的语法修正和新功能加入，将由JavaScript.next完成。当时，JavaScript.next指的是ES6，第六版发布以后，就指ES7。TC39的判断是，ES5会在2013年的年中成为JavaScript开发的主流标准，并在此后五年中一直保持这个位置。
 
 ## 部署进度
 
@@ -47,7 +47,7 @@ Node.js是JavaScript语言的服务器运行环境，对ES6的支持度比浏览
 安装nvm需要打开命令行窗口，运行下面的命令。
 
 ```bash
-$ curl -o- https://raw.githubusercontent.com/creationix/nvm/<version number>/install.sh | bash
+$ curl -o https://raw.githubusercontent.com/creationix/nvm/<version number>/install.sh | bash
 ```
 
 上面命令的`version number`处，需要用版本号替换。本节写作时的版本号是`v0.29.0`。该命令运行后，`nvm`会默认安装在用户主目录的`.nvm`子目录。
@@ -126,7 +126,17 @@ input.map(function (item) {
 命令行下，Babel的安装命令如下。
 
 ```bash
-$ npm install --global babel
+$ npm install --global babel-cli
+$ npm install --save babel-preset-es2015
+```
+
+然后在当前目录下，新建一个配置文件`.babelrc`。
+
+```javascript
+// .babelrc
+{
+  "presets": ['es2015']
+}
 ```
 
 Babel自带一个`babel-node`命令，提供支持ES6的REPL环境。它支持Node的REPL环境的所有功能，而且可以直接运行ES6代码。
@@ -181,10 +191,10 @@ $ babel -d build-dir source-dir -s
 
 ### 浏览器环境
 
-Babel也可以用于浏览器。它的浏览器版本，可以通过安装`babel-core`模块获取。
+Babel也可以用于浏览器。但是，从Babel 6.0开始，不再直接提供浏览器版本，而是要用构建工具构建出来。如果你没有或不想使用构建工具，只有通过安装5.x版本的`babel-core`模块获取。
 
 ```bash
-$ npm install babel-core
+$ npm install babel-core@5
 ```
 
 运行上面的命令以后，就可以在当前目录的`node_modules/babel-core/`子目录里面，找到`babel`的浏览器版本`browser.js`（未精简）和`browser.min.js`（已精简）。
@@ -202,23 +212,27 @@ $ npm install babel-core
 
 这种写法是实时将ES6代码转为ES5，对网页性能会有影响。生产环境需要加载已经转码完成的脚本。
 
-`Babel`配合`Browserify`一起使用，可以生成浏览器能够直接加载的脚本。
+下面是`Babel`配合`Browserify`一起使用，可以生成浏览器能够直接加载的脚本。首先，安装`babelify`模块。
 
 ```bash
-$ browserify script.js -t babelify --outfile bundle.js
+$ npm install --save-dev babelify babel-preset-es2015
 ```
 
-上面代码将ES6脚本`script.js`，转为`bundle.js`。浏览器直接加载后者就可以了，不用再加载`browser.js`。
+然后，再用命令行转换ES6脚本。
+
+```bash
+$  browserify script.js -o bundle.js \
+  -t [ babelify --presets [ es2015 react ] ]
+```
+
+上面代码将ES6脚本`script.js`，转为`bundle.js`，浏览器直接加载后者就可以了。
 
 在`package.json`设置下面的代码，就不用每次命令行都输入参数了。
 
 ```javascript
 {
-  // ...
   "browserify": {
-    "transform": [
-      ["babelify", { "stage": [0] }]
-    ]
+    "transform": [["babelify", { "presets": ["es2015"] }]]
   }
 }
 ```
@@ -227,33 +241,66 @@ $ browserify script.js -t babelify --outfile bundle.js
 
 Node脚本之中，需要转换ES6脚本，可以像下面这样写。
 
-先安装`babel-core`。
+先安装`babel-core`和`babel-preset-es2015`。
 
 ```javascript
-$ npm install --save-dev babel-core
+$ npm install --save-dev babel-core babel-preset-es2015
+```
+
+然后，在项目根目录下新建一个`.babelrc`文件。
+
+```javascript
+{
+  "presets": ["es2015"]
+}
 ```
 
 然后在脚本中，调用`babel-core`的`transform`方法。
 
 ```javascript
-require("babel-core").transform("code", options);
+var es5Code = 'let x = n => n + 1';
+var es6Code = require('babel-core')
+  .transform(es5Code, {presets: ['es2015']})
+  .code;
+// '"use strict";\n\nvar x = function x(n) {\n  return n + 1;\n};'
 ```
 
-上面代码中，`transform`方法的第一个参数是一个字符串，表示ES6代码。
+上面代码中，`transform`方法的第一个参数是一个字符串，表示需要转换的ES5代码，第二个参数是转换的配置对象。
 
-Node脚本还有一种特殊的`babel`用法，即把`babel`加载为`require`命令的一个钩子。先将`babel`全局安装。
+Node脚本还有一种特殊的`babel`用法，即把`babel`加载为`require`命令的一个钩子。安装`babel-core`和`babel-preset-es2015`以后，先在项目的根目录下面，设置一个配置文件`.babelrc`。
 
-```bash
-$ npm install -g babel
+```javascript
+// .babelrc
+{
+  "presets": ["es2015"]
+}
 ```
 
 然后，在你的应用的入口脚本（entry script）头部，加入下面的语句。
 
 ```javascript
-require("babel/register");
+require("babel-core/register");
 ```
 
 有了上面这行语句，后面所有通过`require`命令加载的后缀名为`.es6`、`.es`、`.jsx`和`.js`的脚本，都会先通过`babel`转码后再加载。
+
+需要注意的是，Babel默认不会转换Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些定义在全局对象上的方法（比如`Object.assign`）。如果你用到了这些功能，当前的运行环境又不支持。就需要安装`babel-polyfill`模块。
+
+```bash
+$ npm install babel-polyfill --save
+```
+
+然后，在所有脚本头部加上一行。
+
+```javascript
+require('babel-polyfill');
+// 或者
+import 'babel-polyfill';
+```
+
+### 在线转换
+
+Babel提供一个[REPL在线编译器](https://babeljs.io/repl/)，可以在线将ES6代码转为ES5代码。转换后的代码，可以直接作为ES5代码插入网页运行
 
 ## Traceur转码器
 
@@ -307,7 +354,7 @@ Traceur允许将ES6代码直接插入网页。首先，必须在网页头部加�
 
 ### 在线转换
 
-Traceur提供一个[在线编译器](http://google.github.io/traceur-compiler/demo/repl.html)，可以在线将ES6代码转为ES5代码。转换后的代码，可以直接作为ES5代码插入网页运行。
+Traceur也提供一个[在线编译器](http://google.github.io/traceur-compiler/demo/repl.html)，可以在线将ES6代码转为ES5代码。转换后的代码，可以直接作为ES5代码插入网页运行。
 
 上面的例子转为ES5代码运行，就是下面这个样子。
 
@@ -348,7 +395,7 @@ $ npm install -g traceur
 
 安装成功后，就可以在命令行下使用traceur了。
 
-traceur直接运行es6脚本文件，会在标准输出显示运行结果，以前面的calc.js为例。
+traceur直接运行es6脚本文件，会在标准输出显示运行结果，以前面的`calc.js`为例。
 
 ```bash
 $ traceur calc.js
@@ -437,10 +484,4 @@ fs.writeFileSync('out.js.map', result.sourceMap);
 
 ECMAScript当前的所有提案，可以在TC39的官方网站[Github.com/tc39/ecma262](https://github.com/tc39/ecma262)查看。
 
-Babel转码器对Stage 2及以上阶段的功能，是默认支持的。对于那些默认没有打开的功能，需要手动打开。
-
-```bash
-$ babel --stage 0
-$ babel --optional es7.decorators
-```
-
+Babel转码器可以通过安装和使用插件来使用各个stage的语法。
