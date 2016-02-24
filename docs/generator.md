@@ -735,7 +735,7 @@ function* bar() {
 function* bar() {
   yield 'x';
   for (let v of foo()) {
-    console.log(v);
+    yield v;
   }
   yield 'y';
 }
@@ -1173,7 +1173,7 @@ Generator函数的暂停执行的效果，意味着可以把异步操作写在yi
 function* loadUI() {
   showLoadingScreen();
   yield loadUIDataAsynchronously();
- hideLoadingScreen();
+  hideLoadingScreen();
 }
 var loader = loadUI();
 // 加载UI

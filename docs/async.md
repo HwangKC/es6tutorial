@@ -1,6 +1,6 @@
 # 异步操作和Async函数
 
-异步编程对JavaScript语言太重要。JavaScript只有一根线程，如果没有异步编程，根本没法用，非卡死不可。
+异步编程对JavaScript语言太重要。Javascript语言的执行环境是“单线程”的，如果没有异步编程，根本没法用，非卡死不可。
 
 ES6诞生以前，异步编程的方法，大概有下面四种。
 
@@ -691,13 +691,13 @@ function* somethingAsync(x) {
 }
 ```
 
-上面的代码允许并发三个somethingAsync异步操作，等到它们全部完成，才会进行下一步。
+上面的代码允许并发三个`somethingAsync`异步操作，等到它们全部完成，才会进行下一步。
 
 ## async函数
 
 ### 含义
 
-ES7提供了`async`函数，使得异步操作变得更加方便。async 函数是什么？一句话，async函数就是Generator函数的语法糖。
+ES7提供了`async`函数，使得异步操作变得更加方便。`async`函数是什么？一句话，`async`函数就是Generator函数的语法糖。
 
 前文有一个Generator函数，依次读取两个文件。
 
@@ -721,7 +721,7 @@ var gen = function* (){
 };
 ```
 
-写成 async 函数，就是下面这样。
+写成`async`函数，就是下面这样。
 
 ```javascript
 var asyncReadFile = async function (){
@@ -732,25 +732,27 @@ var asyncReadFile = async function (){
 };
 ```
 
-一比较就会发现，async函数就是将Generator函数的星号（*）替换成async，将yield替换成await，仅此而已。
+一比较就会发现，`async`函数就是将Generator函数的星号（`*`）替换成`async`，将`yield`替换成`await`，仅此而已。
 
-async 函数对 Generator 函数的改进，体现在以下三点。
+`async`函数对 Generator 函数的改进，体现在以下四点。
 
-（1）内置执行器。Generator函数的执行必须靠执行器，所以才有了co模块，而async 函数自带执行器。也就是说，async函数的执行，与普通函数一模一样，只要一行。
+（1）内置执行器。Generator函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
 
 ```javascript
 var result = asyncReadFile();
 ```
 
-上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像Generator函数，需要调用`next`方法，或者用co模块，才能得到真正执行，得到最后结果。
+上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像Generator函数，需要调用`next`方法，或者用`co`模块，才能得到真正执行，得到最后结果。
 
 （2）更好的语义。`async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
 
-（3）更广的适用性。 co模块约定，`yield`命令后面只能是Thunk函数或Promise对象，而`async`函数的`await`命令后面，可以是Promise对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）。
+（3）更广的适用性。 `co`模块约定，`yield`命令后面只能是Thunk函数或Promise对象，而`async`函数的`await`命令后面，可以是Promise对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）。
 
-（4）返回值是Promise。async函数的返回值是Promise对象，这比Generator函数的返回值是Iterator对象方便多了。你可以用`then`方法指定下一步的操作。
+（4）返回值是Promise。`async`函数的返回值是Promise对象，这比Generator函数的返回值是Iterator对象方便多了。你可以用`then`方法指定下一步的操作。
 
 进一步说，async函数完全可以看作多个异步操作，包装成的一个Promise对象，而`await`命令就是内部`then`命令的语法糖。
+
+正常情况下，`await`命令后面是一个Promise对象，否则会被转成Promise。
 
 ### async函数的实现
 
@@ -770,9 +772,9 @@ function fn(args){
 }
 ```
 
-所有的 async 函数都可以写成上面的第二种形式，其中的 spawn 函数就是自动执行器。
+所有的`async`函数都可以写成上面的第二种形式，其中的 spawn 函数就是自动执行器。
 
-下面给出 spawn 函数的实现，基本就是前文自动执行器的翻版。
+下面给出`spawn`函数的实现，基本就是前文自动执行器的翻版。
 
 ```javascript
 function spawn(genF) {
@@ -798,11 +800,11 @@ function spawn(genF) {
 }
 ```
 
-async 函数是非常新的语法功能，新到都不属于 ES6，而是属于 ES7。目前，它仍处于提案阶段，但是转码器 Babel 和 regenerator 都已经支持，转码后就能使用。
+`async`函数是非常新的语法功能，新到都不属于 ES6，而是属于 ES7。目前，它仍处于提案阶段，但是转码器`Babel`和`regenerator`都已经支持，转码后就能使用。
 
 ### async 函数的用法
 
-同Generator函数一样，async函数返回一个Promise对象，可以使用then方法添加回调函数。当函数执行的时候，一旦遇到 await 就会先返回，等到触发的异步操作完成，再接着执行函数体内后面的语句。
+同Generator函数一样，`async`函数返回一个Promise对象，可以使用`then`方法添加回调函数。当函数执行的时候，一旦遇到`await`就会先返回，等到触发的异步操作完成，再接着执行函数体内后面的语句。
 
 下面是一个例子。
 
@@ -813,12 +815,12 @@ async function getStockPriceByName(name) {
   return stockPrice;
 }
 
-getStockPriceByName('goog').then(function (result){
+getStockPriceByName('goog').then(function (result) {
   console.log(result);
 });
 ```
 
-上面代码是一个获取股票报价的函数，函数前面的async关键字，表明该函数内部有异步操作。调用该函数时，会立即返回一个Promise对象。
+上面代码是一个获取股票报价的函数，函数前面的`async`关键字，表明该函数内部有异步操作。调用该函数时，会立即返回一个`Promise`对象。
 
 下面的例子，指定多少毫秒后输出一个值。
 
@@ -839,9 +841,25 @@ asyncPrint('hello world', 50);
 
 上面代码指定50毫秒以后，输出"hello world"。
 
+Async函数有多种使用形式。
+
+```javascript
+// 函数声明
+async function foo() {}
+
+// 函数表达式
+const foo = async function () {};
+
+// 对象的方法
+let obj = { async foo() {} }
+
+// 箭头函数
+const foo = async () => {};
+```
+
 ### 注意点
 
-await命令后面的Promise对象，运行结果可能是rejected，所以最好把await命令放在try...catch代码块中。
+第一点，`await`命令后面的Promise对象，运行结果可能是rejected，所以最好把`await`命令放在`try...catch`代码块中。
 
 ```javascript
 async function myFunction() {
@@ -861,7 +879,29 @@ async function myFunction() {
 }
 ```
 
-await命令只能用在async函数之中，如果用在普通函数，就会报错。
+第二点，多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
+
+```javascript
+let foo = await getFoo();
+let bar = await getBar();
+```
+
+上面代码中，`getFoo`和`getBar`是两个独立的异步操作（即互不依赖），被写成继发关系。这样比较耗时，因为只有`getFoo`完成以后，才会执行`getBar`，完全可以让它们同时触发。
+
+```javascript
+// 写法一
+let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+
+// 写法二
+let fooPromise = getFoo();
+let barPromise = getBar();
+let foo = await fooPromise;
+let bar = await barPromise;
+```
+
+上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
+
+第三点，`await`命令只能用在`async`函数之中，如果用在普通函数，就会报错。
 
 ```javascript
 async function dbFuc(db) {
@@ -874,7 +914,7 @@ async function dbFuc(db) {
 }
 ```
 
-上面代码会报错，因为await用在普通函数之中了。但是，如果将forEach方法的参数改成async函数，也有问题。
+上面代码会报错，因为await用在普通函数之中了。但是，如果将`forEach`方法的参数改成`async`函数，也有问题。
 
 ```javascript
 async function dbFuc(db) {
@@ -887,7 +927,7 @@ async function dbFuc(db) {
 }
 ```
 
-上面代码可能不会正常工作，原因是这时三个`db.post`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用for循环。
+上面代码可能不会正常工作，原因是这时三个`db.post`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用`for`循环。
 
 ```javascript
 async function dbFuc(db) {
@@ -899,7 +939,7 @@ async function dbFuc(db) {
 }
 ```
 
-如果确实希望多个请求并发执行，可以使用 Promise.all 方法。
+如果确实希望多个请求并发执行，可以使用`Promise.all`方法。
 
 ```javascript
 async function dbFuc(db) {
@@ -924,7 +964,7 @@ async function dbFuc(db) {
 }
 ```
 
-ES6将await增加为保留字。使用这个词作为标识符，在ES5是合法的，在ES6将抛出SyntaxError。
+ES6将`await`增加为保留字。使用这个词作为标识符，在ES5是合法的，在ES6将抛出SyntaxError。
 
 ### 与Promise、Generator的比较
 

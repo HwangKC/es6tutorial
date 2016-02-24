@@ -180,12 +180,14 @@ ES5对字符串对象提供`charAt`方法，返回字符串给定位置的字符
 
 上面代码中，`charAt`方法返回的是UTF-16编码的第一个字节，实际上是无法显示的。
 
-ES7提供了字符串实例的`at`方法，可以识别Unicode编号大于`0xFFFF`的字符，返回正确的字符。Chrome浏览器已经支持该方法。
+目前，有一个提案，提出字符串实例的`at`方法，可以识别Unicode编号大于`0xFFFF`的字符，返回正确的字符。
 
 ```javascript
 'abc'.at(0) // "a"
 '𠮷'.at(0) // "𠮷"
 ```
+
+这个方法可以通过[垫片库](https://github.com/es-shims/String.prototype.at)实现。
 
 ## normalize()
 
@@ -318,11 +320,33 @@ ES7推出了字符串补全长度的功能。如果某个字符串不够指定�
 'xxx'.padEnd(2, 'ab') // 'xxx'
 ```
 
+如果用来补全的字符串与原字符串，两者的长度之和超过了指定的最小长度，则会截去超出位数的补全字符串。
+
+```javascript
+'abc'.padStart(10, '0123456789')
+// '0123456abc'
+```
+
 如果省略第二个参数，则会用空格补全长度。
 
 ```javascript
 'x'.padStart(4) // '   x'
 'x'.padEnd(4) // 'x   '
+```
+
+`padStart`的常见用途是为数值补全指定位数。下面代码生成10位的数值字符串。
+
+```javascript
+'1'.padStart(10, '0') // "0000000001"
+'12'.padStart(10, '0') // "0000000012"
+'123456'.padStart(10, '0') // "0000123456"
+```
+
+另一个用途是提示字符串格式。
+
+```javascript
+'12'.padStart(10, 'YYYY-MM-DD') // "YYYY-MM-12"
+'09-12'.padStart(10, 'YYYY-MM-DD') // "YYYY-09-12"
 ```
 
 ## 模板字符串
@@ -601,7 +625,7 @@ function tag(stringArr, ...values){
 - 第二个参数: 15
 - 第三个参数：50
 
-也就是说，`tag`数实际上以下面的形式调用。
+也就是说，`tag`函数实际上以下面的形式调用。
 
 ```javascript
 tag(['Hello ', ' world ', ''], 15, 50)

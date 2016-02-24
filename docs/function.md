@@ -130,7 +130,7 @@ function m2({x, y} = { x: 0, y: 0 }) {
 }
 ```
 
-上面两种写法都对函数的参数设定了默认值，区别是写法一函数参数的默认值是空对象，但是设置了对象解构赋值的默认值；写法二函数参数的默认值是一个有具体属性的函数，但是没有设置对象解构赋值的默认值。
+上面两种写法都对函数的参数设定了默认值，区别是写法一函数参数的默认值是空对象，但是设置了对象解构赋值的默认值；写法二函数参数的默认值是一个有具体属性的对象，但是没有设置对象解构赋值的默认值。
 
 ```javascript
 // 函数没有参数的情况
@@ -387,7 +387,7 @@ function f(a, ...b, c) {
 
 ### 含义
 
-扩展运算符（spread）是三个点（...）。它好比rest参数的逆运算，将一个数组转为用逗号分隔的参数序列。
+扩展运算符（spread）是三个点（`...`）。它好比rest参数的逆运算，将一个数组转为用逗号分隔的参数序列。
 
 ```javascript
 console.log(...[1, 2, 3])
@@ -431,12 +431,16 @@ f(-1, ...args, 2, ...[3]);
 
 ```javascript
 // ES5的写法
-function f(x, y, z) {}
+function f(x, y, z) {
+  // ...
+}
 var args = [0, 1, 2];
 f.apply(null, args);
 
 // ES6的写法
-function f(x, y, z) {}
+function f(x, y, z) {
+  // ...
+}
 var args = [0, 1, 2];
 f(...args);
 ```
@@ -559,7 +563,7 @@ var d = new Date(...dateFields);
 扩展运算符还可以将字符串转为真正的数组。
 
 ```javascript
-[..."hello"]
+[...'hello']
 // [ "h", "e", "l", "l", "o" ]
 ```
 
@@ -594,16 +598,32 @@ str.split('').reverse().join('')
 
 上面代码中，如果不用扩展运算符，字符串的`reverse`操作就不正确。
 
-**（5）类似数组的对象**
+**（5）实现了Iterator接口的对象**
 
-任何类似数组的对象，都可以用扩展运算符转为真正的数组。
+任何Iterator接口的对象，都可以用扩展运算符转为真正的数组。
 
 ```javascript
 var nodeList = document.querySelectorAll('div');
 var array = [...nodeList];
 ```
 
-上面代码中，`querySelectorAll`方法返回的是一个`nodeList`对象，扩展运算符可以将其转为真正的数组。
+上面代码中，`querySelectorAll`方法返回的是一个`nodeList`对象。它不是数组，而是一个类似数组的对象。这时，扩展运算符可以将其转为真正的数组，原因就在于`NodeList`对象实现了Iterator接口。
+
+对于那些没有部署Iterator接口的类似数组的对象，扩展运算符就无法将其转为真正的数组。
+
+```javascript
+let arrayLike = {
+  '0': 'a',
+  '1': 'b',
+  '2': 'c',
+  length: 3
+};
+
+// TypeError: Cannot spread non-iterable object.
+let arr = [...arrayLike];
+```
+
+上面代码中，`arrayLike`是一个类似数组的对象，但是没有部署Iterator接口，扩展运算符就会报错。这时，可以改为使用`Array.from`方法将`arrayLike`转为真正的数组。
 
 **（6）Map和Set结构，Generator函数**
 
@@ -743,7 +763,7 @@ const full = ({ first, last }) => first + ' ' + last;
 
 // 等同于
 function full( person ){
-  return person.first + ' ' + person.name;
+  return person.first + ' ' + person.last;
 }
 ```
 
@@ -819,7 +839,7 @@ foo.call( { id: 42 } );
 // id: 42
 ```
 
-上面代码中，`setTimeout`的参数是一个箭头函数，100毫秒后执行。如果是普通函数，执行时`this`应该指向全局对象，但是箭头函数导致`this`总是指向函数所在的对象。
+上面代码中，`setTimeout`的参数是一个箭头函数，100毫秒后执行。如果是普通函数，执行时`this`应该指向全局对象`window`，但是箭头函数导致`this`总是指向函数所在的对象（本例是`{id: 42}`）。
 
 下面是另一个例子。
 
@@ -838,7 +858,7 @@ var handler = {
 };
 ```
 
-上面代码的`init`方法中，使用了箭头函数，这导致`this`总是指向`handler`对象。否则，回调函数运行时，`this.doSomething`这一行会报错，因为此时`this`指向全局对象。
+上面代码的`init`方法中，使用了箭头函数，这导致`this`总是指向`handler`对象。否则，回调函数运行时，`this.doSomething`这一行会报错，因为此时`this`指向`document`对象。
 
 ```javascript
 function Timer () {
@@ -1118,7 +1138,7 @@ function addOne(a){
 }
 ```
 
-上面的函数不会进行尾调用优化，因为内层函数inner用到了，外层函数addOne的内部变量one。
+上面的函数不会进行尾调用优化，因为内层函数`inner`用到了，外层函数`addOne`的内部变量`one`。
 
 ### 尾递归
 
@@ -1149,17 +1169,6 @@ factorial(5, 1) // 120
 ```
 
 由此可见，“尾调用优化”对递归操作意义重大，所以一些函数式编程语言将其写入了语言规格。ES6也是如此，第一次明确规定，所有ECMAScript的实现，都必须部署“尾调用优化”。这就是说，在ES6中，只要使用尾递归，就不会发生栈溢出，相对节省内存。
-
-注意，只有开启严格模式，尾调用优化才会生效。由于一旦启用尾调用优化，`func.arguments`和`func.caller`这两个函数内部对象就失去意义了，因为外层的帧会被整个替换掉，这两个对象包含的信息就会被移除。严格模式下，这两个对象也是不可用的。
-
-```javascript
-function restricted() {
-  "use strict";
-  restricted.caller;    // 报错
-  restricted.arguments; // 报错
-}
-restricted();
-```
 
 ### 递归函数的改写
 
@@ -1217,6 +1226,119 @@ factorial(5) // 120
 上面代码中，参数 total 有默认值1，所以调用时不用提供这个值。
 
 总结一下，递归本质上是一种循环操作。纯粹的函数式编程语言没有循环操作命令，所有的循环都用递归实现，这就是为什么尾递归对这些语言极其重要。对于其他支持“尾调用优化”的语言（比如Lua，ES6），只需要知道循环可以用递归代替，而一旦使用递归，就最好使用尾递归。
+
+### 严格模式
+
+ES6的尾调用优化只在严格模式下开启，正常模式是无效的。
+
+这是因为在正常模式下，函数内部有两个变量，可以跟踪函数的调用栈。
+
+- `func.arguments`：返回调用时函数的参数。
+- `func.caller`：返回调用当前函数的那个函数。
+
+尾调用优化发生时，函数的调用栈会改写，因此上面两个变量就会失真。严格模式禁用这两个变量，所以尾调用模式仅在严格模式下生效。
+
+```javascript
+function restricted() {
+  "use strict";
+  restricted.caller;    // 报错
+  restricted.arguments; // 报错
+}
+restricted();
+```
+
+### 尾递归优化的实现
+
+尾递归优化只在严格模式下生效，那么正常模式下，或者那些不支持该功能的环境中，有没有办法也使用尾递归优化呢？回答是可以的，就是自己实现尾递归优化。
+
+它的原理非常简单。尾递归之所以需要优化，原因是调用栈太多，造成溢出，那么只要减少调用栈，就不会溢出。怎么做可以减少调用栈呢？就是采用“循环”换掉“递归”。
+
+下面是一个正常的递归函数。
+
+```javascript
+function sum(x, y) {
+  if (y > 0) {
+    return sum(x + 1, y - 1);
+  } else {
+    return x;
+  }
+}
+
+sum(1, 100000)
+// Uncaught RangeError: Maximum call stack size exceeded(…)
+```
+
+上面代码中，`sum`是一个递归函数，参数`x`是需要累加的值，参数`y`控制递归次数。一旦指定`sum`递归100000次，就会报错，提示超出调用栈的最大次数。
+
+蹦床函数（trampoline）可以将递归执行转为循环执行。
+
+```javascript
+function trampoline(f) {
+  while (f && f instanceof Function) {
+    f = f();
+  }
+  return f;
+}
+```
+
+上面就是蹦床函数的一个实现，它接受一个函数`f`作为参数。只要`f`执行后返回一个函数，就继续执行。注意，这里是返回一个函数，然后执行该函数，而不是函数里面调用函数，这样就避免了递归执行，从而就消除了调用栈过大的问题。
+
+然后，要做的就是将原来的递归函数，改写为每一步返回另一个函数。
+
+```javascript
+function sum(x, y) {
+  if (y > 0) {
+    return sum.bind(null, x + 1, y - 1);
+  } else {
+    return x;
+  }
+}
+```
+
+上面代码中，`sum`函数的每次执行，都会返回自身的另一个版本。
+
+现在，使用蹦床函数执行`sum`，就不会发生调用栈溢出。
+
+```javascript
+trampoline(sum(1, 100000))
+// 100001
+```
+
+蹦床函数并不是真正的尾递归优化，下面的实现才是。
+
+```javascript
+function tco(f) {
+  var value;
+  var active = false;
+  var accumulated = [];
+
+  return function accumulator() {
+    accumulated.push(arguments);
+    if (!active) {
+      active = true;
+      while (accumulated.length) {
+        value = f.apply(this, accumulated.shift());
+      }
+      active = false;
+      return value;
+    }
+  }
+}
+
+var sum = tco(function(x, y) {
+  if (y > 0) {
+    return sum(x + 1, y - 1)
+  }
+  else {
+    return x
+  }
+});
+
+sum(1, 100000)
+// 100001
+```
+
+上面代码中，`tco`函数是尾递归优化的实现，它的奥妙就在于状态变量`active`。默认情况下，这个变量是不激活的。一旦进入尾递归优化的过程，这个变量就激活了。然后，每一轮递归`sum`返回的都是`undefined`，所以就避免了递归执行；而`accumulated`数组存放每一轮`sum`执行的参数，总是有值的，这就保证了`accumulator`函数内部的`while`循环总是会执行。这样就很巧妙地将“递归”改成了“循环”，而后一轮的参数会取代前一轮的参数，保证了调用栈只有一层。
 
 ## 函数参数的尾逗号
 
