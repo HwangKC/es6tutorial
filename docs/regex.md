@@ -2,30 +2,43 @@
 
 ## RegExp构造函数
 
-在ES5中，RegExp构造函数只能接受字符串作为参数。
+在ES5中，RegExp构造函数的参数有两种情况。
+
+第一种情况是，参数是字符串，这时第二个参数表示正则表达式的修饰符（flag）。
 
 ```javascript
-var regex = new RegExp("xyz", "i");
+var regex = new RegExp('xyz', 'i');
 // 等价于
 var regex = /xyz/i;
 ```
 
-ES6允许RegExp构造函数接受正则表达式作为参数，这时会返回一个原有正则表达式的拷贝。
+第二种情况是，参数是一个正则表示式，这时会返回一个原有正则表达式的拷贝。
 
 ```javascript
 var regex = new RegExp(/xyz/i);
+// 等价于
+var regex = /xyz/i;
 ```
 
-如果使用RegExp构造函数的第二个参数指定修饰符，则返回的正则表达式会忽略原有的正则表达式的修饰符，只使用新指定的修饰符。
+但是，ES5不允许此时使用第二个参数，添加修饰符，否则会报错。
+
+```javascript
+var regex = new RegExp(/xyz/, i);
+// Uncaught TypeError: Cannot supply flags when constructing one RegExp from another
+```
+
+ES6改变了这种行为。如果RegExp构造函数第一个参数是一个正则对象，那么可以使用第二个参数指定修饰符。而且，返回的正则表达式会忽略原有的正则表达式的修饰符，只使用新指定的修饰符。
 
 ```javascript
 new RegExp(/abc/ig, 'i').flags
 // "i"
 ```
 
+上面代码中，原有正则对象的修饰符是`ig`，它会被第二个参数`i`覆盖。
+
 ## 字符串的正则方法
 
-字符串对象共有4个方法，可以使用正则表达式：match()、replace()、search()和split()。
+字符串对象共有4个方法，可以使用正则表达式：`match()`、`replace()`、`search()`和`split()`。
 
 ES6将这4个方法，在语言内部全部调用RegExp的实例方法，从而做到所有与正则相关的方法，全都定义在RegExp对象上。
 
@@ -54,7 +67,7 @@ ES6对正则表达式添加了`u`修饰符，含义为“Unicode模式”，用�
 点（.）字符在正则表达式中，含义是除了换行符以外的任意单个字符。对于码点大于`0xFFFF`的Unicode字符，点字符不能识别，必须加上u修饰符。
 
 ```javascript
-var s = "𠮷";
+var s = '𠮷';
 
 /^.$/.test(s) // false
 /^.$/u.test(s) // true
@@ -112,7 +125,7 @@ function codePointLength(text) {
   return result ? result.length : 0;
 }
 
-var s = "𠮷𠮷";
+var s = '𠮷𠮷';
 
 s.length // 4
 codePointLength(s) // 2
@@ -136,7 +149,7 @@ codePointLength(s) // 2
 y修饰符的作用与g修饰符类似，也是全局匹配，后一次匹配都从上一次匹配成功的下一个位置开始。不同之处在于，g修饰符只要剩余位置中存在匹配就可，而y修饰符确保匹配必须从剩余的第一个位置开始，这也就是“粘连”的涵义。
 
 ```javascript
-var s = "aaa_aa_a";
+var s = 'aaa_aa_a';
 var r1 = /a+/g;
 var r2 = /a+/y;
 
@@ -147,12 +160,12 @@ r1.exec(s) // ["aa"]
 r2.exec(s) // null
 ```
 
-上面代码有两个正则表达式，一个使用g修饰符，另一个使用y修饰符。这两个正则表达式各执行了两次，第一次执行的时候，两者行为相同，剩余字符串都是“_aa_a”。由于g修饰没有位置要求，所以第二次执行会返回结果，而y修饰符要求匹配必须从头部开始，所以返回null。
+上面代码有两个正则表达式，一个使用`g`修饰符，另一个使用`y`修饰符。这两个正则表达式各执行了两次，第一次执行的时候，两者行为相同，剩余字符串都是`_aa_a`。由于g修饰没有位置要求，所以第二次执行会返回结果，而y修饰符要求匹配必须从头部开始，所以返回`null`。
 
-如果改一下正则表达式，保证每次都能头部匹配，y修饰符就会返回结果了。
+如果改一下正则表达式，保证每次都能头部匹配，`y`修饰符就会返回结果了。
 
 ```javascript
-var s = "aaa_aa_a";
+var s = 'aaa_aa_a';
 var r = /a+_/y;
 
 r.exec(s) // ["aaa_"]
@@ -207,7 +220,7 @@ REGEX.lastIndex // 4
 进一步说，`y`修饰符号隐含了头部匹配的标志&#710;。
 
 ```javascript
-/b/y.exec("aba")
+/b/y.exec('aba')
 // null
 ```
 
@@ -307,7 +320,7 @@ ES6为正则表达式新增了flags属性，会返回正则表达式的修饰符
 
 ```javascript
 function escapeRegExp(str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
 
 let str = '/path/to/resource.html?search=query';
@@ -320,13 +333,13 @@ escapeRegExp(str)
 已经有[提议](https://esdiscuss.org/topic/regexp-escape)将这个需求标准化，作为RegExp对象的静态方法[RegExp.escape()](https://github.com/benjamingr/RexExp.escape)，放入ES7。2015年7月31日，TC39认为，这个方法有安全风险，又不愿这个方法变得过于复杂，没有同意将其列入ES7，但这不失为一个真实的需求。
 
 ```javascript
-RegExp.escape("The Quick Brown Fox");
+RegExp.escape('The Quick Brown Fox');
 // "The Quick Brown Fox"
 
-RegExp.escape("Buy it. use it. break it. fix it.")
+RegExp.escape('Buy it. use it. break it. fix it.');
 // "Buy it\. use it\. break it\. fix it\."
 
-RegExp.escape("(*.*)");
+RegExp.escape('(*.*)');
 // "\(\*\.\*\)"
 ```
 
@@ -342,7 +355,50 @@ assert.equal(String(regex), '/hello\. how are you\?/g');
 
 ```javascript
 var escape = require('regexp.escape');
-escape('hi. how are you?')
-"hi\\. how are you\\?"
+escape('hi. how are you?');
+// "hi\\. how are you\\?"
 ```
 
+## 后行断言
+
+JavaScript语言的正则表达式，只支持先行断言（lookahead）和先行否定断言（negative lookahead），不支持后行断言（lookbehind）和后行否定断言（negative lookbehind）。
+
+目前，有一个[提案](https://github.com/goyakin/es-regexp-lookbehind)，在ES7加入后行断言。V8引擎4.9版已经支持，Chrome浏览器49版打开”experimental JavaScript features“开关（地址栏键入`about:flags`），就可以使用这项功能。
+
+”先行断言“指的是，`x`只有在`y`前面才匹配，必须写成`/x(?=y)/`。比如，只匹配百分号之前的数字，要写成`/\d+(?=%)/`。”先行否定断言“指的是，`x`只有不在`y`前面才匹配，必须写成`/x(?!y)/`。比如，只匹配不在百分号之前的数字，要写成`/\d+(?!%)/`。
+
+```javascript
+/\d+(?=%)/.exec('100% of US presidents have been male')  // ["100"]
+/\d+(?!%)/.exec('that’s all 44 of them')                 // ["44"]
+```
+
+上面两个字符串，如果互换正则表达式，就会匹配失败。另外，还可以看到，”先行断言“括号之中的部分（`(?=%)`），是不计入返回结果的。
+
+"后行断言"正好与"先行断言"相反，`x`只有在`y`后面才匹配，必须写成`/(?<=y)x/`。比如，只匹配美元符号之后的数字，要写成`/(?<=\$)\d+/`。”后行否定断言“则与”先行否定断言“相反，`x`只有不在`y`后面才匹配，必须写成`/(?<!y)x/`。比如，只匹配不在美元符号后面的数字，要写成`/(?<!\$)\d+/`。
+
+```javascript
+/(?<=\$)\d+/.exec('Benjamin Franklin is on the $100 bill')  // ["100"]
+/(?<!\$)\d+/.exec('it’s is worth about €90')                // ["90"]
+```
+
+上面的例子中，"后行断言"的括号之中的部分（`(?<=\$)`），也是不计入返回结果。
+
+"后行断言"的实现，需要先匹配`/(?<=y)x/`的`x`，然后再回到左边，匹配`y`的部分。这种"先右后左"的执行顺序，与所有其他正则操作相反，导致了一些不符合预期的行为。
+
+首先，”后行断言“的组匹配，与正常情况下结果是不一样的。
+
+```javascript
+/(?<=(\d+)(\d+))$/.exec('1053') // ["", "1", "053"]
+/^(\d+)(\d+)$/.exec('1053') // ["1053", "105", "3"]
+```
+
+上面代码中，需要捕捉两个组匹配。没有"后行断言"时，第一个括号是贪婪模式，第二个括号只能捕获一个字符，所以结果是`105`和`3`。而"后行断言"时，由于执行顺序是从右到左，第二个括号是贪婪模式，第一个括号只能捕获一个字符，所以结果是`1`和`053`。
+
+其次，"后行断言"的反斜杠引用，也与通常的顺序相反，必须放在对应的那个括号之前。
+
+```javascript
+/(?<=(o)d\1)r/.exec('hodor')  // null
+/(?<=\1d(o))r/.exec('hodor')  // ["r", "o"]
+```
+
+上面代码中，如果后行断言的反斜杠引用（`\1`）放在括号的后面，就不会得到匹配结果，必须放在前面才可以。

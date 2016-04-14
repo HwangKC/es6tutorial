@@ -38,7 +38,7 @@ import { stat, exists, readFile } from 'fs';
 
 ## 严格模式
 
-ES6的模块自动采用严格模式，不管你有没有在模块头部加上`"use strict"`。
+ES6的模块自动采用严格模式，不管你有没有在模块头部加上`"use strict";`。
 
 严格模式主要有以下限制。
 
@@ -73,9 +73,9 @@ export var lastName = 'Jackson';
 export var year = 1958;
 ```
 
-上面代码是`profile.js`文件，保存了用户信息。ES6将其视为一个模块，里面用export命令对外部输出了三个变量。
+上面代码是`profile.js`文件，保存了用户信息。ES6将其视为一个模块，里面用`export`命令对外部输出了三个变量。
 
-export的写法，除了像上面这样，还有另外一种。
+`export`的写法，除了像上面这样，还有另外一种。
 
 ```javascript
 // profile.js
@@ -86,7 +86,7 @@ var year = 1958;
 export {firstName, lastName, year};
 ```
 
-上面代码在`export`命令后面，使用大括号指定所要输出的一组变量。它与前一种写法（直接放置在var语句前）是等价的，但是应该优先考虑使用这种写法。因为这样就可以在脚本尾部，一眼看清楚输出了哪些变量。
+上面代码在`export`命令后面，使用大括号指定所要输出的一组变量。它与前一种写法（直接放置在`var`语句前）是等价的，但是应该优先考虑使用这种写法。因为这样就可以在脚本尾部，一眼看清楚输出了哪些变量。
 
 export命令除了输出变量，还可以输出函数或类（class）。
 
@@ -113,7 +113,61 @@ export {
 
 上面代码使用`as`关键字，重命名了函数`v1`和`v2`的对外接口。重命名后，`v2`可以用不同的名字输出两次。
 
-最后，`export`命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错，下面的`import`命令也是如此。这是因为处于条件代码块之中，就没法做静态优化了，违背了ES6模块的设计初衷。
+需要特别注意的是，`export`命令规定的是对外的接口，必须与模块内部的变量建立一一对应关系。
+
+```javascript
+// 报错
+export 1;
+
+// 报错
+var m = 1;
+export m;
+```
+
+上面两种写法都会报错，因为没有提供对外的接口。第一种写法直接输出1，第二种写法通过变量`m`，还是直接输出1。`1`只是一个值，不是接口。正确的写法是下面这样。
+
+```javascript
+// 写法一
+export var m = 1;
+
+// 写法二
+var m = 1;
+export {m};
+
+// 写法三
+var n = 1;
+export {n as m};
+```
+
+上面三种写法都是正确的，规定了对外的接口`m`。其他脚本可以通过这个接口，取到值`1`。它们的实质是，在接口名与模块内部变量之间，建立了一一对应的关系。
+
+同样的，`function`和`class`的输出，也必须遵守这样的写法。
+
+```javascript
+// 报错
+function f() {}
+export f;
+
+// 正确
+export function f() {};
+
+// 正确
+function f() {}
+export {f};
+```
+
+另外，`export`语句输出的接口，与其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。
+
+```javascript
+export var foo = 'bar';
+setTimeout(() => foo = 'baz', 500);
+```
+
+上面代码输出变量`foo`，值为`bar`，500毫秒之后变成`baz`。
+
+这一点与CommonJS规范完全不同。CommonJS模块输出的是值的缓存，不存在动态更新，详见下文《ES6模块加载的实质》一节。
+
+最后，`export`命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错，下一节的`import`命令也是如此。这是因为处于条件代码块之中，就没法做静态优化了，违背了ES6模块的设计初衷。
 
 ```javascript
 function foo() {
@@ -123,15 +177,6 @@ foo()
 ```
 
 上面代码中，`export`语句放在函数之中，结果报错。
-
-`export`语句输出的值是动态绑定，绑定其所在的模块。
-
-```javascript
-export var foo = 'bar';
-setTimeout(() => foo = 'baz', 500);
-```
-
-上面代码输出变量`foo`，值为`bar`，500毫秒之后变成`baz`。
 
 ## import命令
 
@@ -181,16 +226,16 @@ export default es6;
 
 ```javascript
 // 提案的写法
-export v from "mod";
+export v from 'mod';
 
 // 现行的写法
-export {v} from "mod";
+export {v} from 'mod';
 ```
 
 `import`语句会执行所加载的模块，因此可以有下面的写法。
 
 ```javascript
-import 'lodash'
+import 'lodash';
 ```
 
 上面代码仅仅执行`lodash`模块，但是不输入任何值。
@@ -220,8 +265,8 @@ export function circumference(radius) {
 
 import { area, circumference } from './circle';
 
-console.log("圆面积：" + area(4));
-console.log("圆周长：" + circumference(14));
+console.log('圆面积：' + area(4));
+console.log('圆周长：' + circumference(14));
 ```
 
 上面写法是逐一指定要加载的方法，整体加载的写法如下。
@@ -229,8 +274,8 @@ console.log("圆周长：" + circumference(14));
 ```javascript
 import * as circle from './circle';
 
-console.log("圆面积：" + circle.area(4));
-console.log("圆周长：" + circle.circumference(14));
+console.log('圆面积：' + circle.area(4));
+console.log('圆周长：' + circle.circumference(14));
 ```
 
 ## export default命令
@@ -256,7 +301,7 @@ import customName from './export-default';
 customName(); // 'foo'
 ```
 
-上面代码的`impor`t命令，可以用任意名称指向`export-default.js`输出的方法，这时就不需要知道原模块输出的函数名。需要注意的是，这时`import`命令后面，不使用大括号。
+上面代码的`import`命令，可以用任意名称指向`export-default.js`输出的方法，这时就不需要知道原模块输出的函数名。需要注意的是，这时`import`命令后面，不使用大括号。
 
 `export default`命令用在非匿名函数前，也是可以的。
 
@@ -365,7 +410,7 @@ let o = new MyClass();
 
 模块之间也可以继承。
 
-假设有一个`circleplus`块，继承了`circle`模块。
+假设有一个`circleplus`模块，继承了`circle`模块。
 
 ```javascript
 // circleplus.js
@@ -394,8 +439,8 @@ export { area as circleArea } from 'circle';
 ```javascript
 // main.js
 
-import * as math from "circleplus";
-import exp from "circleplus";
+import * as math from 'circleplus';
+import exp from 'circleplus';
 console.log(exp(math.e));
 ```
 
@@ -514,6 +559,48 @@ obj = {}; // TypeError
 ```
 
 上面代码中，`main.js`从`lib.js`输入变量`obj`，可以对`obj`添加属性，但是重新赋值就会报错。因为变量`obj`指向的地址是只读的，不能重新赋值，这就好比`main.js`创造了一个名为`obj`的const变量。
+
+最后，`export`通过接口，输出的是同一个值。不同的脚本加载这个接口，得到的都是同样的实例。
+
+```javascript
+// mod.js
+function C() {
+  this.sum = 0;
+  this.add = function () {
+    this.sum += 1;
+  };
+  this.show = function () {
+    console.log(this.sum);
+  }
+}
+
+export let c = new C();
+```
+
+上面的脚本`mod.js`，输出的是一个`C`的实例。不同的脚本加载这个模块，得到的都是同一个实例。
+
+```javascript
+// x.js
+import {c} from './mod';
+c.add();
+
+// y.js
+import {c} from './mod';
+c.show();
+
+// main.js
+import './x';
+import './y';
+```
+
+现在执行`main.js`，输出的是1。
+
+```bash
+$ babel-node main.js
+1
+```
+
+这就证明了`x.js`和`y.js`加载的都是`C`的同一个实例。
 
 ## 循环加载
 
