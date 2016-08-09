@@ -19,16 +19,10 @@ log('Hello', '') // Hello World
 
 上面代码检查函数`log`的参数`y`有没有赋值，如果没有，则指定默认值为`World`。这种写法的缺点在于，如果参数`y`赋值了，但是对应的布尔值为`false`，则该赋值不起作用。就像上面代码的最后一行，参数`y`等于空字符，结果被改为默认值。
 
-为了避免这个问题，通常需要先判断一下参数y是否被赋值，如果没有，再等于默认值。这有两种写法。
+为了避免这个问题，通常需要先判断一下参数`y`是否被赋值，如果没有，再等于默认值。
 
 ```javascript
-// 写法一
 if (typeof y === 'undefined') {
-  y = 'World';
-}
-
-// 写法二
-if (arguments.length === 1) {
   y = 'World';
 }
 ```
@@ -57,9 +51,9 @@ var p = new Point();
 p // { x: 0, y: 0 }
 ```
 
-除了简洁，ES6的写法还有两个好处：首先，阅读代码的人，可以立刻意识到哪些参数是可以省略的，不用查看函数体或文档；其次，有利于将来的代码优化，即使未来的版本彻底拿掉这个参数，也不会导致以前的代码无法运行。
+除了简洁，ES6的写法还有两个好处：首先，阅读代码的人，可以立刻意识到哪些参数是可以省略的，不用查看函数体或文档；其次，有利于将来的代码优化，即使未来的版本在对外接口中，彻底拿掉这个参数，也不会导致以前的代码无法运行。
 
-参数变量是默认声明的，所以不能用let或const再次声明。
+参数变量是默认声明的，所以不能用`let`或`const`再次声明。
 
 ```javascript
 function foo(x = 5) {
@@ -68,7 +62,7 @@ function foo(x = 5) {
 }
 ```
 
-上面代码中，参数变量`x`是默认声明的，在函数体中，不能用let或const再次声明，否则会报错。
+上面代码中，参数变量`x`是默认声明的，在函数体中，不能用`let`或`const`再次声明，否则会报错。
 
 ### 与解构赋值默认值结合使用
 
@@ -90,7 +84,7 @@ foo() // TypeError: Cannot read property 'x' of undefined
 下面是另一个对象的解构赋值默认值的例子。
 
 ```javascript
-function fetch(url, { body = '', method = 'GET', headers = {} }){
+function fetch(url, { body = '', method = 'GET', headers = {} }) {
   console.log(method);
 }
 
@@ -106,7 +100,7 @@ fetch('http://example.com')
 上面的写法不能省略第二个参数，如果结合函数参数的默认值，就可以省略第二个参数。这时，就出现了双重默认值。
 
 ```javascript
-function fetch(url, { method = 'GET' } = {}){
+function fetch(url, { method = 'GET' } = {}) {
   console.log(method);
 }
 
@@ -184,8 +178,8 @@ f(1, undefined, 2) // [1, 5, 2]
 如果传入`undefined`，将触发该参数等于默认值，`null`则没有这个效果。
 
 ```javascript
-function foo(x = 5, y = 6){
-  console.log(x,y);
+function foo(x = 5, y = 6) {
+  console.log(x, y);
 }
 
 foo(undefined, null)
@@ -199,17 +193,24 @@ foo(undefined, null)
 指定了默认值以后，函数的`length`属性，将返回没有指定默认值的参数个数。也就是说，指定了默认值后，`length`属性将失真。
 
 ```javascript
-(function(a){}).length // 1
-(function(a = 5){}).length // 0
-(function(a, b, c = 5){}).length // 2
+(function (a) {}).length // 1
+(function (a = 5) {}).length // 0
+(function (a, b, c = 5) {}).length // 2
 ```
 
-上面代码中，`length`属性的返回值，等于函数的参数个数减去指定了默认值的参数个数。比如，上面最后一个函数，定义了3个参数，其中有一个参数`c`指定了默认值，因此`length`属性等于3减去1，最后得到2。
+上面代码中，`length`属性的返回值，等于函数的参数个数减去指定了默认值的参数个数。比如，上面最后一个函数，定义了3个参数，其中有一个参数`c`指定了默认值，因此`length`属性等于`3`减去`1`，最后得到`2`。
 
 这是因为`length`属性的含义是，该函数预期传入的参数个数。某个参数指定默认值以后，预期传入的参数个数就不包括这个参数了。同理，rest参数也不会计入`length`属性。
 
 ```javascript
 (function(...args) {}).length // 0
+```
+
+如果设置了默认值的参数不是尾参数，那么`length`属性也不再计入后面的参数了。
+
+```javascript
+(function (a = 0, b, c) {}).length // 0
+(function (a, b = 1, c) {}).length // 1
 ```
 
 ### 作用域
@@ -241,7 +242,7 @@ function f(y = x) {
 f() // 1
 ```
 
-上面代码中，函数调用时，`y`的默认值变量`x`尚未在函数内部生成，所以`x`指向全局变量，结果又不一样。
+上面代码中，函数调用时，`y`的默认值变量`x`尚未在函数内部生成，所以`x`指向全局变量。
 
 如果此时，全局变量`x`不存在，就会报错。
 
@@ -254,7 +255,21 @@ function f(y = x) {
 f() // ReferenceError: x is not defined
 ```
 
-如果函数`A`的参数默认值是函数`B`，由于函数的作用域是其声明时所在的作用域，那么函数`B`的作用域不是函数`A`，而是全局作用域。请看下面的例子。
+下面这样写，也会报错。
+
+```javascript
+var x = 1;
+
+function foo(x = x) {
+  // ...
+}
+
+foo() // ReferenceError: x is not defined
+```
+
+上面代码中，函数`foo`的参数`x`的默认值也是`x`。这时，默认值`x`的作用域是函数作用域，而不是全局作用域。由于在函数作用域中，存在变量`x`，但是默认值在`x`赋值之前先执行了，所以这时属于暂时性死区（参见《let和const命令》一章），任何对`x`的操作都会报错。
+
+如果参数的默认值是一个函数，该函数的作用域是其声明时所在的作用域。请看下面的例子。
 
 ```javascript
 let foo = 'outer';
@@ -267,19 +282,7 @@ function bar(func = x => foo) {
 bar();
 ```
 
-上面代码中，函数`bar`的参数`func`，默认是一个匿名函数，返回值为变量`foo`。这个匿名函数的作用域就不是`bar`。这个匿名函数声明时，是处在外层作用域，所以内部的`foo`指向函数体外的声明，输出`outer`。它实际上等同于下面的代码。
-
-```javascript
-let foo = 'outer';
-let f = x => foo;
-
-function bar(func = f) {
-  let foo = 'inner';
-  console.log(func()); // outer
-}
-
-bar();
-```
+上面代码中，函数`bar`的参数`func`的默认值是一个匿名函数，返回值为变量`foo`。这个匿名函数声明时，`bar`函数的作用域还没有形成，所以匿名函数里面的`foo`指向外层作用域的`foo`，输出`outer`。
 
 如果写成下面这样，就会报错。
 
@@ -290,6 +293,36 @@ function bar(func = () => foo) {
 }
 
 bar() // ReferenceError: foo is not defined
+```
+
+上面代码中，匿名函数里面的`foo`指向函数外层，但是函数外层并没有声明`foo`，所以就报错了。
+
+下面是一个更复杂的例子。
+
+```javascript
+var x = 1;
+function foo(x, y = function() { x = 2; }) {
+  var x = 3;
+  y();
+  console.log(x);
+}
+
+foo() // 3
+```
+
+上面代码中，函数`foo`的参数`y`的默认值是一个匿名函数。函数`foo`调用时，它的参数`x`的值为`undefined`，所以`y`函数内部的`x`一开始是`undefined`，后来被重新赋值`2`。但是，函数`foo`内部重新声明了一个`x`，值为`3`，这两个`x`是不一样的，互相不产生影响，因此最后输出`3`。
+
+如果将`var x = 3`的`var`去除，两个`x`就是一样的，最后输出的就是`2`。
+
+```javascript
+var x = 1;
+function foo(x, y = function() { x = 2; }) {
+  x = 3;
+  y();
+  console.log(x);
+}
+
+foo() // 2
 ```
 
 ### 应用
@@ -343,8 +376,9 @@ add(2, 5, 3) // 10
 
 ```javascript
 // arguments变量的写法
-const sortNumbers = () =>
-  Array.prototype.slice.call(arguments).sort();
+function sortNumbers() {
+  return Array.prototype.slice.call(arguments).sort();
+}
 
 // rest参数的写法
 const sortNumbers = (...numbers) => numbers.sort();
@@ -735,7 +769,7 @@ var f = function(v) {
 ```javascript
 var f = () => 5;
 // 等同于
-var f = function (){ return 5 };
+var f = function () { return 5 };
 
 var sum = (num1, num2) => num1 + num2;
 // 等同于
@@ -744,7 +778,7 @@ var sum = function(num1, num2) {
 };
 ```
 
-如果箭头函数的代码块部分多于一条语句，就要使用大括号将它们括起来，并且使用return语句返回。
+如果箭头函数的代码块部分多于一条语句，就要使用大括号将它们括起来，并且使用`return`语句返回。
 
 ```javascript
 var sum = (num1, num2) => { return num1 + num2; }
@@ -762,7 +796,7 @@ var getTempItem = id => ({ id: id, name: "Temp" });
 const full = ({ first, last }) => first + ' ' + last;
 
 // 等同于
-function full( person ){
+function full(person) {
   return person.first + ' ' + person.last;
 }
 ```
@@ -792,7 +826,7 @@ const square = n => n * n;
 
 ```javascript
 // 正常函数写法
-var result = values.sort(function(a, b) {
+var result = values.sort(function (a, b) {
   return a - b;
 });
 
@@ -830,49 +864,61 @@ headAndTail(1, 2, 3, 4, 5)
 
 ```javascript
 function foo() {
-  setTimeout( () => {
-    console.log("id:", this.id);
-  },100);
+  setTimeout(() => {
+    console.log('id:', this.id);
+  }, 100);
 }
 
 var id = 21;
 
-foo.call( { id: 42 } );
+foo.call({ id: 42 });
 // id: 42
 ```
 
 上面代码中，`setTimeout`的参数是一个箭头函数，这个箭头函数的定义生效是在`foo`函数生成时，而它的真正执行要等到100毫秒后。如果是普通函数，执行时`this`应该指向全局对象`window`，这时应该输出`21`。但是，箭头函数导致`this`总是指向函数定义生效时所在的对象（本例是`{id: 42}`），所以输出的是`42`。
 
-下面是另一个例子。
+箭头函数可以让`setTimeout`里面的`this`，绑定定义时所在的作用域，而不是指向运行时所在的作用域。下面是另一个例子。
+
+```javascript
+function Timer() {
+  this.s1 = 0;
+  this.s2 = 0;
+  // 箭头函数
+  setInterval(() => this.s1++, 1000);
+  // 普通函数
+  setInterval(function () {
+    this.s2++;
+  }, 1000);
+}
+
+var timer = new Timer();
+
+setTimeout(() => console.log('s1: ', timer.s1), 3100);
+setTimeout(() => console.log('s2: ', timer.s2), 3100);
+// s1: 3
+// s2: 0
+```
+
+上面代码中，`Timer`函数内部设置了两个定时器，分别使用了箭头函数和普通函数。前者的`this`绑定定义时所在的作用域（即`Timer`函数），后者的`this`指向运行时所在的作用域（即全局对象）。所以，3100毫秒之后，`timer.s1`被更新了3次，而`timer.s2`一次都没更新。
+
+箭头函数可以让`this`指向固定化，这种特性很有利于封装回调函数。下面是一个例子，DOM事件的回调函数封装在一个对象里面。
 
 ```javascript
 var handler = {
-  id: "123456",
+  id: '123456',
 
   init: function() {
-    document.addEventListener("click",
+    document.addEventListener('click',
       event => this.doSomething(event.type), false);
   },
 
   doSomething: function(type) {
-    console.log("Handling " + type  + " for " + this.id);
+    console.log('Handling ' + type  + ' for ' + this.id);
   }
 };
 ```
 
 上面代码的`init`方法中，使用了箭头函数，这导致这个箭头函数里面的`this`，总是指向`handler`对象。否则，回调函数运行时，`this.doSomething`这一行会报错，因为此时`this`指向`document`对象。
-
-```javascript
-function Timer () {
-  this.seconds = 0
-  setInterval(() => this.seconds++, 1000)
-}
-var timer = new Timer()
-setTimeout(() => console.log(timer.seconds), 3100)
-// 3
-```
-
-上面代码中，`Timer`函数内部的`setInterval`调用了`this.seconds`属性，通过箭头函数让`this`总是指向`Timer`的实例对象。否则，输出结果是0，而不是3。
 
 `this`指向的固定化，并不是因为箭头函数内部有绑定`this`的机制，实际原因是箭头函数根本没有自己的`this`，导致内部的`this`就是外层代码块的`this`。正是因为它没有`this`，所以也就不能用作构造函数。
 
@@ -881,9 +927,9 @@ setTimeout(() => console.log(timer.seconds), 3100)
 ```javascript
 // ES6
 function foo() {
-  setTimeout( () => {
-    console.log("id:", this.id);
-  },100);
+  setTimeout(() => {
+    console.log('id:', this.id);
+  }, 100);
 }
 
 // ES5
@@ -891,12 +937,12 @@ function foo() {
   var _this = this;
 
   setTimeout(function () {
-    console.log("id:", _this.id);
+    console.log('id:', _this.id);
   }, 100);
 }
 ```
 
-上面代码中，箭头函数转成ES5代码时，内部的`this`需要改为引用外部的`this`。
+上面代码中，转换后的ES5版本清楚地说明了，箭头函数里面根本没有自己的`this`，而是引用外层的`this`。
 
 请问下面的代码之中有几个`this`？
 
@@ -905,7 +951,7 @@ function foo() {
   return () => {
     return () => {
       return () => {
-        console.log(`id:`, this.id);
+        console.log('id:', this.id);
       };
     };
   };
@@ -918,18 +964,18 @@ var t2 = f().call({id: 3})(); // id: 1
 var t3 = f()().call({id: 4}); // id: 1
 ```
 
-上面代码之中，只有一个`this`，就是函数`foo`的`this`，所以`t1`、`t2`、`t3`都输出同样的结果。因为所有的内层函数都是箭头函数，都没有自己的`this`，所以它们的`this`其实都是最外层`foo`函数的`this`。
+上面代码之中，只有一个`this`，就是函数`foo`的`this`，所以`t1`、`t2`、`t3`都输出同样的结果。因为所有的内层函数都是箭头函数，都没有自己的`this`，它们的`this`其实都是最外层`foo`函数的`this`。
 
 除了`this`，以下三个变量在箭头函数之中也是不存在的，指向外层函数的对应变量：`arguments`、`super`、`new.target`。
 
 ```javascript
 function foo() {
-   setTimeout( () => {
-      console.log("args:", arguments);
-   },100);
+  setTimeout(() => {
+    console.log('args:', arguments);
+  }, 100);
 }
 
-foo( 2, 4, 6, 8 );
+foo(2, 4, 6, 8)
 // args: [2, 4, 6, 8]
 ```
 
@@ -941,7 +987,7 @@ foo( 2, 4, 6, 8 );
 (function() {
   return [
     (() => this.x).bind({ x: 'inner' })()
-  ]
+  ];
 }).call({ x: 'outer' });
 // ['outer']
 ```
@@ -1195,6 +1241,37 @@ function factorial(n, total) {
 factorial(5, 1) // 120
 ```
 
+还有一个比较著名的例子，就是计算fibonacci 数列，也能充分说明尾递归优化的重要性
+
+如果是非尾递归的fibonacci 递归方法
+
+```javascript
+function Fibonacci (n) {
+  if ( n <= 1 ) {return 1};
+
+  return Fibonacci(n - 1) + Fibonacci(n - 2);
+}
+
+Fibonacci(10); // 89
+// Fibonacci(100)
+// Fibonacci(500)
+// 堆栈溢出了
+```
+
+如果我们使用尾递归优化过的fibonacci 递归算法
+
+```javascript
+function Fibonacci2 (n , ac1 = 1 , ac2 = 1) {
+  if( n <= 1 ) {return ac2};
+
+  return Fibonacci2 (n - 1, ac2, ac1 + ac2);
+}
+
+Fibonacci2(100) // 573147844013817200000
+Fibonacci2(1000) // 7.0330367711422765e+208
+Fibonacci2(10000) // Infinity
+```
+
 由此可见，“尾调用优化”对递归操作意义重大，所以一些函数式编程语言将其写入了语言规格。ES6也是如此，第一次明确规定，所有ECMAScript的实现，都必须部署“尾调用优化”。这就是说，在ES6中，只要使用尾递归，就不会发生栈溢出，相对节省内存。
 
 ### 递归函数的改写
@@ -1349,7 +1426,7 @@ function tco(f) {
       active = false;
       return value;
     }
-  }
+  };
 }
 
 var sum = tco(function(x, y) {

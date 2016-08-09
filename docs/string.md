@@ -98,8 +98,8 @@ var s = '𠮷a';
 for (let ch of s) {
   console.log(ch.codePointAt(0).toString(16));
 }
-// "20bb7"
-// ""
+// 20bb7
+// 61
 ```
 
 `codePointAt`方法是测试一个字符由两个字节还是由四个字节组成的最简单方法。
@@ -133,7 +133,7 @@ String.fromCodePoint(0x78, 0x1f680, 0x79) === 'x\uD83D\uDE80y'
 // true
 ```
 
-上面代码中，如果`String.fromCharCode`方法有多个参数，则它们会被合并成一个字符串返回。
+上面代码中，如果`String.fromCodePoint`方法有多个参数，则它们会被合并成一个字符串返回。
 
 注意，`fromCodePoint`方法定义在`String`对象上，而`codePointAt`方法定义在字符串的实例对象上。
 
@@ -191,7 +191,7 @@ ES5对字符串对象提供`charAt`方法，返回字符串给定位置的字符
 
 ## normalize()
 
-为了表示语调和重音符号，Unicode提供了两种方法。一种是直接提供带重音符号的字符，比如`Ǒ`（\u01D1）。另一种是提供合成符号（combining character），即原字符与重音符号的合成，两个字符合成一个字符，比如`O`（\u004F）和`ˇ`（\u030C）合成`Ǒ`（\u004F\u030C）。
+许多欧洲语言有语调符号和重音符合。为了表示它们，Unicode提供了两种方法。一种是直接提供带重音符号的字符，比如`Ǒ`（\u01D1）。另一种是提供合成符号（combining character），即原字符与重音符号的合成，两个字符合成一个字符，比如`O`（\u004F）和`ˇ`（\u030C）合成`Ǒ`（\u004F\u030C）。
 
 这两种表示方法，在视觉和语义上都等价，但是JavaScript不能识别。
 
@@ -211,7 +211,7 @@ ES6提供字符串实例的`normalize()`方法，用来将字符的不同表示�
 // true
 ```
 
-`normalize`方法可以接受四个参数。
+`normalize`方法可以接受一个参数来指定`normalize`的方式，参数的四个可选值如下。
 
 - `NFC`，默认参数，表示“标准等价合成”（Normalization Form Canonical Composition），返回多个简单字符的合成字符。所谓“标准等价”指的是视觉和语义上的等价。
 - `NFD`，表示“标准等价分解”（Normalization Form Canonical Decomposition），即在标准等价的前提下，返回合成字符分解的多个简单字符。
@@ -354,18 +354,18 @@ ES7推出了字符串补全长度的功能。如果某个字符串不够指定�
 传统的JavaScript语言，输出模板通常是这样写的。
 
 ```javascript
-$("#result").append(
-  "There are <b>" + basket.count + "</b> " +
-  "items in your basket, " +
-  "<em>" + basket.onSale +
-  "</em> are on sale!"
+$('#result').append(
+  'There are <b>' + basket.count + '</b> ' +
+  'items in your basket, ' +
+  '<em>' + basket.onSale +
+  '</em> are on sale!'
 );
 ```
 
 上面这种写法相当繁琐不方便，ES6引入了模板字符串解决这个问题。
 
 ```javascript
-$("#result").append(`
+$('#result').append(`
   There are <b>${basket.count}</b> items
    in your basket, <em>${basket.onSale}</em>
   are on sale!
@@ -390,7 +390,7 @@ var name = "Bob", time = "today";
 `Hello ${name}, how are you ${time}?`
 ```
 
-上面代码中的字符串，都是用反引号表示。如果在模板字符串中需要使用反引号，则前面要用反斜杠转义。
+上面代码中的模板字符串，都是用反引号表示。如果在模板字符串中需要使用反引号，则前面要用反斜杠转义。
 
 ```javascript
 var greeting = `\`Yo\` World!`;
@@ -399,11 +399,24 @@ var greeting = `\`Yo\` World!`;
 如果使用模板字符串表示多行字符串，所有的空格和缩进都会被保留在输出之中。
 
 ```javascript
-$("#warning").html(`
-  <h1>Watch out!</h1>
-  <p>Unauthorized hockeying can result in penalties
-  of up to ${maxPenalty} minutes.</p>
+$('#list').html(`
+<ul>
+  <li>first</li>
+  <li>second</li>
+</ul>
 `);
+```
+
+上面代码中，所有模板字符串的空格和换行，都是被保留的，比如`<ul>`标签前面会有一个换行。如果你不想要这个换行，可以使用`trim`方法消除它。
+
+
+```javascript
+$('#list').html(`
+<ul>
+  <li>first</li>
+  <li>second</li>
+</ul>
+`.trim());
 ```
 
 模板字符串中嵌入变量，需要将变量名写在`${}`之中。
@@ -468,7 +481,40 @@ var msg = `Hello, ${place}`;
 // "Hello World"
 ```
 
-如果需要引用模板字符串本身，可以像下面这样写。
+模板字符串甚至还能嵌套。
+
+```javascript
+const tmpl = addrs => `
+  <table>
+  ${addrs.map(addr => `
+    <tr><td>${addr.first}</td></tr>
+    <tr><td>${addr.last}</td></tr>
+  `).join('')}
+  </table>
+`;
+```
+
+上面代码中，模板字符串的变量之中，又嵌入了另一个模板字符串，使用方法如下。
+
+```javascript
+const data = [
+    { first: '<Jane>', last: 'Bond' },
+    { first: 'Lars', last: '<Croft>' },
+];
+
+console.log(tmpl(data));
+// <table>
+//
+//   <tr><td><Jane></td></tr>
+//   <tr><td>Bond</td></tr>
+//
+//   <tr><td>Lars</td></tr>
+//   <tr><td><Croft></td></tr>
+//
+// </table>
+```
+
+如果需要引用模板字符串本身，在需要时执行，可以像下面这样写。
 
 ```javascript
 // 写法一
@@ -489,7 +535,7 @@ func('Jack') // "Hello Jack!"
 ```javascript
 var template = `
 <ul>
-  <% for(var i=0; i < data.supplies.length; i++) {%>
+  <% for(var i=0; i < data.supplies.length; i++) { %>
     <li><%= data.supplies[i] %></li>
   <% } %>
 </ul>
@@ -590,13 +636,23 @@ div.innerHTML = parse({ supplies: [ "broom", "mop", "cleaner" ] });
 
 模板字符串的功能，不仅仅是上面这些。它可以紧跟在一个函数名后面，该函数将被调用来处理这个模板字符串。这被称为“标签模板”功能（tagged template）。
 
+```javascript
+alert`123`
+// 等同于
+alert(123)
+```
+
 标签模板其实不是模板，而是函数调用的一种特殊形式。“标签”指的就是函数，紧跟在后面的模板字符串就是它的参数。
+
+但是，如果模板字符里面有变量，就不是简单的调用了，而是会将模板字符串先处理成多个参数，再调用函数。
 
 ```javascript
 var a = 5;
 var b = 10;
 
 tag`Hello ${ a + b } world ${ a * b }`;
+// 等同于
+tag(['Hello ', ' world ', ''], 15, 50);
 ```
 
 上面代码中，模板字符串前面有一个标识名`tag`，它是一个函数。整个表达式的返回值，就是`tag`函数处理模板字符串后的返回值。
@@ -663,7 +719,7 @@ var total = 30;
 var msg = passthru`The total is ${total} (${total*1.05} with tax)`;
 
 function passthru(literals) {
-  var result = "";
+  var result = '';
   var i = 0;
 
   while (i < literals.length) {

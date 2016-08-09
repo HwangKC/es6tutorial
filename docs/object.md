@@ -146,7 +146,7 @@ var obj = {
   * m(){
     yield 'hello world';
   }
-}
+};
 ```
 
 ## 属性名表达式
@@ -233,9 +233,9 @@ var person = {
     console.log(this.name);
   },
   get firstName() {
-    return "Nicholas"
+    return "Nicholas";
   }
-}
+};
 
 person.sayName.name   // "sayName"
 person.firstName.name // "get firstName"
@@ -326,7 +326,7 @@ Object.assign(target, source1, source2);
 target // {a:1, b:2, c:3}
 ```
 
-`Object.assign`方法的第一个参数是目标对象，后面的参数都是源对象。只要有一个参数不是对象，就会抛出TypeError错误。
+`Object.assign`方法的第一个参数是目标对象，后面的参数都是源对象。
 
 注意，如果目标对象与源对象有同名属性，或多个源对象有同名属性，则后面的属性会覆盖前面的属性。
 
@@ -543,27 +543,26 @@ function processContent(options) {
 
 ```javascript
 let obj = { foo: 123 };
- Object.getOwnPropertyDescriptor(obj, 'foo')
- //   { value: 123,
- //     writable: true,
- //     enumerable: true,
- //     configurable: true }
+Object.getOwnPropertyDescriptor(obj, 'foo')
+//  {
+//    value: 123,
+//    writable: true,
+//    enumerable: true,
+//    configurable: true
+//  }
 ```
 
 描述对象的`enumerable`属性，称为”可枚举性“，如果该属性为`false`，就表示某些操作会忽略当前属性。
 
 ES5有三个操作会忽略`enumerable`为`false`的属性。
 
-- for...in 循环：只遍历对象自身的和继承的可枚举的属性
-- Object.keys()：返回对象自身的所有可枚举的属性的键名
-- JSON.stringify()：只串行化对象自身的可枚举的属性
+- `for...in`循环：只遍历对象自身的和继承的可枚举的属性
+- `Object.keys()`：返回对象自身的所有可枚举的属性的键名
+- `JSON.stringify()`：只串行化对象自身的可枚举的属性
 
-ES6新增了两个操作，会忽略`enumerable`为`false`的属性。
+ES6新增了一个操作`Object.assign()`，会忽略`enumerable`为`false`的属性，只拷贝对象自身的可枚举的属性。
 
-- Object.assign()：只拷贝对象自身的可枚举的属性
-- Reflect.enumerate()：返回所有`for...in`循环会遍历的属性
-
-这五个操作之中，只有`for...in`和`Reflect.enumerate()`会返回继承的属性。实际上，引入`enumerable`的最初目的，就是让某些属性可以规避掉`for...in`操作。比如，对象原型的`toString`方法，以及数组的`length`属性，就通过这种手段，不会被`for...in`遍历到。
+这四个操作之中，只有`for...in`会返回继承的属性。实际上，引入`enumerable`的最初目的，就是让某些属性可以规避掉`for...in`操作。比如，对象原型的`toString`方法，以及数组的`length`属性，就通过这种手段，不会被`for...in`遍历到。
 
 ```javascript
 Object.getOwnPropertyDescriptor(Object.prototype, 'toString').enumerable
@@ -572,6 +571,8 @@ Object.getOwnPropertyDescriptor(Object.prototype, 'toString').enumerable
 Object.getOwnPropertyDescriptor([], 'length').enumerable
 // false
 ```
+
+上面代码中，`toString`和`length`属性的`enumerable`都是`false`，因此`for...in`不会遍历到这两个继承自原型的属性。
 
 另外，ES6规定，所有Class的原型的方法都是不可枚举的。
 
@@ -584,7 +585,7 @@ Object.getOwnPropertyDescriptor(class {foo() {}}.prototype, 'foo').enumerable
 
 ## 属性的遍历
 
-ES6一共有6种方法可以遍历对象的属性。
+ES6一共有5种方法可以遍历对象的属性。
 
 **（1）for...in**
 
@@ -606,11 +607,7 @@ ES6一共有6种方法可以遍历对象的属性。
 
 `Reflect.ownKeys`返回一个数组，包含对象自身的所有属性，不管是属性名是Symbol或字符串，也不管是否可枚举。
 
-**（6）Reflect.enumerate(obj)**
-
-`Reflect.enumerate`返回一个Iterator对象，遍历对象自身的和继承的所有可枚举属性（不含Symbol属性），与`for...in`循环相同。
-
-以上的6种方法遍历对象的属性，都遵守同样的属性遍历的次序规则。
+以上的5种方法遍历对象的属性，都遵守同样的属性遍历的次序规则。
 
 - 首先遍历所有属性名为数值的属性，按照数字排序。
 - 其次遍历所有属性名为字符串的属性，按照生成时间排序。
@@ -633,12 +630,12 @@ Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
 // es6的写法
 var obj = {
   method: function() { ... }
-}
+};
 obj.__proto__ = someOtherObj;
 
 // es5的写法
 var obj = Object.create(someOtherObj);
-obj.method = function() { ... }
+obj.method = function() { ... };
 ```
 
 该属性没有写入ES6的正文，而是写入了附录，原因是`__proto__`前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的API，只是由于浏览器广泛支持，才被加入了ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都不要使用这个属性，而是使用下面的`Object.setPrototypeOf()`（写操作）、`Object.getPrototypeOf()`（读操作）、`Object.create()`（生成操作）代替。
@@ -662,7 +659,7 @@ Object.defineProperty(Object.prototype, '__proto__', {
       return undefined;
     }
     let status = Reflect.setPrototypeOf(this, proto);
-    if (! status) {
+    if (!status) {
       throw new TypeError();
     }
   },
@@ -756,7 +753,7 @@ Object.keys(obj)
 目前，ES7有一个[提案](https://github.com/tc39/proposal-object-values-entries)，引入了跟`Object.keys`配套的`Object.values`和`Object.entries`。
 
 ```javascript
- let {keys, values, entries} = Object;
+let {keys, values, entries} = Object;
 let obj = { a: 1, b: 2, c: 3 };
 
 for (let key of keys(obj)) {
@@ -876,7 +873,11 @@ function* entries(obj) {
 
 // 非Generator函数的版本
 function entries(obj) {
-  return (for (key of Object.keys(obj)) [key, obj[key]]);
+  let arr = [];
+  for (let key of Object.keys(obj)) {
+    arr.push([key, obj[key]]);
+  }
+  return arr;
 }
 ```
 
@@ -924,7 +925,7 @@ x.a.b // 2
 
 上面代码中，`x`是Rest解构赋值所在的对象，拷贝了对象`obj`的`a`属性。`a`属性引用了一个对象，修改这个对象的值，会影响到Rest解构赋值对它的引用。
 
-另外，Rest解构赋不会拷贝继承自原型对象的属性。
+另外，Rest解构赋值不会拷贝继承自原型对象的属性。
 
 ```javascript
 let o1 = { a: 1 };
@@ -943,9 +944,9 @@ var o = Object.create({ x: 1, y: 2 });
 o.z = 3;
 
 let { x, ...{ y, z } } = o;
-x; // 1
-y; // undefined
-z; // 3
+x // 1
+y // undefined
+z // 3
 ```
 
 上面代码中，变量`x`是单纯的解构赋值，所以可以读取继承的属性；Rest解构赋值产生的变量`y`和`z`，只能读取对象自身的属性，所以只有变量`z`可以赋值成功。
@@ -1010,7 +1011,7 @@ let aWithOverrides = Object.assign({}, a, { x: 1, y: 2 });
 ```javascript
 let newVersion = {
   ...previousVersion,
-  name: 'New Name', // Override the name property
+  name: 'New Name' // Override the name property
 };
 ```
 
@@ -1074,7 +1075,7 @@ ES7有一个提案，提出了`Object.getOwnPropertyDescriptors`方法，返回�
 ```javascript
 const obj = {
   foo: 123,
-  get bar() { return 'abc' },
+  get bar() { return 'abc' }
 };
 
 Object.getOwnPropertyDescriptors(obj)

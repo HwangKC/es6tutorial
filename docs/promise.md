@@ -40,12 +40,12 @@ Promise构造函数接受一个函数作为参数，该函数的两个参数分�
 
 `resolve`函数的作用是，将Promise对象的状态从“未完成”变为“成功”（即从Pending变为Resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；`reject`函数的作用是，将Promise对象的状态从“未完成”变为“失败”（即从Pending变为Rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
-Promise实例生成以后，可以用then方法分别指定Resolved状态和Reject状态的回调函数。
+Promise实例生成以后，可以用`then`方法分别指定`Resolved`状态和`Reject`状态的回调函数。
 
 ```javascript
 promise.then(function(value) {
   // success
-}, function(value) {
+}, function(error) {
   // failure
 });
 ```
@@ -109,6 +109,8 @@ function loadImageAsync(url) {
 }
 ```
 
+上面代码中，使用Promise包装了一个图片加载的异步操作。如果加载成功，就调用`resolve`方法，否则就调用`reject`方法。
+
 下面是一个用Promise对象实现的Ajax操作的例子。
 
 ```javascript
@@ -122,7 +124,7 @@ var getJSON = function(url) {
     client.send();
 
     function handler() {
-      if ( this.readyState !== 4 ) {
+      if (this.readyState !== 4) {
         return;
       }
       if (this.status === 200) {
@@ -148,11 +150,11 @@ getJSON("/posts.json").then(function(json) {
 如果调用`resolve`函数和`reject`函数时带有参数，那么它们的参数会被传递给回调函数。`reject`函数的参数通常是Error对象的实例，表示抛出的错误；`resolve`函数的参数除了正常的值以外，还可能是另一个Promise实例，表示异步操作的结果有可能是一个值，也有可能是另一个异步操作，比如像下面这样。
 
 ```javascript
-var p1 = new Promise(function(resolve, reject){
+var p1 = new Promise(function (resolve, reject) {
   // ...
 });
 
-var p2 = new Promise(function(resolve, reject){
+var p2 = new Promise(function (resolve, reject) {
   // ...
   resolve(p1);
 })
@@ -166,15 +168,18 @@ var p2 = new Promise(function(resolve, reject){
 var p1 = new Promise(function (resolve, reject) {
   setTimeout(() => reject(new Error('fail')), 3000)
 })
+
 var p2 = new Promise(function (resolve, reject) {
   setTimeout(() => resolve(p1), 1000)
 })
-p2.then(result => console.log(result))
-p2.catch(error => console.log(error))
+
+p2
+  .then(result => console.log(result))
+  .catch(error => console.log(error))
 // Error: fail
 ```
 
-上面代码中，`p1`是一个Promise，3秒之后变为`rejected`。`p2`的状态由`p1`决定，1秒之后，`p2`调用`resolve`方法，但是此时`p1`的状态还没有改变，因此`p2`的状态也不会变。又过了2秒，`p1`变为`rejected`，`p2`也跟着变为`rejected`。
+上面代码中，`p1`是一个Promise，3秒之后变为`rejected`。`p2`的状态在1秒之后改变，`resolve`方法返回的是`p1`。此时，由于`p2`返回的是另一个Promise，所以后面的`then`语句都变成针对后者（`p1`）。又过了2秒，`p1`变为`rejected`，导致触发`catch`方法指定的回调函数。
 
 ## Promise.prototype.then()
 
@@ -610,6 +615,26 @@ p.then(function () {
 ```
 
 上面代码的变量`p`就是一个Promise对象。
+
+需要注意的是，立即`resolve`的Promise对象，是在本轮“事件循环”（event loop）的结束时，而不是在下一轮“事件循环”的开始时。
+
+```javascript
+setTimeout(function () {
+  console.log('three');
+}, 0);
+
+Promise.resolve().then(function () {
+  console.log('two');
+});
+
+console.log('one');
+
+// one
+// two
+// three
+```
+
+上面代码中，`setTimeout(fn, 0)`在下一轮“事件循环”开始时执行，`Promise.resolve()`在本轮“事件循环”结束时执行，`console.log(’one‘)`则是立即执行，因此最先输出。
 
 ## Promise.reject()
 
